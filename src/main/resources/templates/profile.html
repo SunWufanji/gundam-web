@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>驾驶员档案 | Pilot Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'gun-dark': '#050505',
+              'gun-panel': '#111', 
+              'fed-blue': '#0055AA',
+              'tech-blue': '#00A3FF',
+              'alert-red': '#CC0000',
+            },
+            fontFamily: { 'mech': ['Orbitron', 'sans-serif'], 'cn': ['"Noto Sans SC"', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+    <style>
+        .clip-card { clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px); }
+        .scan-line {
+            position: absolute; width: 100%; height: 2px; background: rgba(0, 163, 255, 0.5);
+            animation: scan 3s linear infinite; box-shadow: 0 0 4px #00A3FF;
+        }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+    </style>
+</head>
+<body class="bg-gun-dark text-white min-h-screen font-cn flex flex-col">
+
+    <!-- 简易导航 -->
+    <nav class="bg-gun-panel border-b border-gray-800 px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 font-mech text-xl font-bold">
+            <i class="fa-solid fa-id-card text-tech-blue"></i> 驾驶员<span class="text-gray-500">档案</span>
+        </div>
+        <a href="/" class="text-sm font-mech hover:text-tech-blue transition">返回首页</a>
+    </nav>
+
+    <div class="flex-1 flex items-center justify-center p-6 relative overflow-hidden">
+        <!-- 背景装饰 -->
+        <div class="absolute inset-0 bg-[url('/images/hero_freedom.jpg')] bg-cover opacity-10 blur-sm"></div>
+        
+        <!-- 档案卡片 -->
+        <div class="relative w-full max-w-4xl bg-gun-panel/90 backdrop-blur border border-tech-blue/30 clip-card p-1 shadow-[0_0_50px_rgba(0,163,255,0.1)]">
+            <!-- 扫描线动画 -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none z-0"><div class="scan-line"></div></div>
+
+            <div class="flex flex-col md:flex-row h-full relative z-10 bg-gun-dark/50">
+                
+                <!-- 左侧：头像区 -->
+                <div class="w-full md:w-1/3 bg-black/40 p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-white/10">
+                    <div class="w-32 h-32 rounded-full border-2 border-tech-blue p-1 mb-4 shadow-[0_0_20px_rgba(0,163,255,0.3)]">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Gundam" class="w-full h-full rounded-full bg-gray-800" alt="用户头像">
+                    </div>
+                    <h2 class="text-2xl font-mech font-bold text-white tracking-widest" th:text="${user.username}">USERNAME</h2>
+                    <span class="text-xs text-tech-blue font-mech border border-tech-blue/50 px-2 py-0.5 mt-2">王牌驾驶员</span>
+                </div>
+
+                <!-- 右侧：数据区 -->
+                <div class="w-full md:w-2/3 p-8">
+                    <div class="flex justify-between items-start mb-8 border-b border-white/10 pb-4">
+                        <div>
+                            <h3 class="text-sm text-gray-500 font-mech">注册信息</h3>
+                            <p class="text-xs text-gray-600">地球联邦宇宙军人事部 // E.F.S.F. PERSONNEL</p>
+                        </div>
+                        <i class="fa-brands fa-galactic-republic text-4xl text-gray-700"></i>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="block text-xs text-tech-blue font-mech mb-1">识别代号 (ID)</label>
+                            <div class="text-lg font-bold font-mono tracking-wider" th:text="${user.id}">001</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-tech-blue font-mech mb-1">通讯链路 (EMAIL)</label>
+                            <div class="text-lg font-bold font-mono tracking-wider" th:text="${user.email}">user@gundam.net</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-tech-blue font-mech mb-1">状态</label>
+                            <div class="text-green-500 font-bold font-mech text-sm flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> 在线
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-tech-blue font-mech mb-1">权限等级</label>
+                            <div class="text-gray-300 font-bold font-mech text-sm">等级 3</div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-auto">
+                        <a href="/" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-center py-3 font-bold font-mech text-sm transition clip-card">
+                            返回基地
+                        </a>
+                        <!-- 这里的登出按钮 -->
+                        <a href="/logout" class="flex-1 bg-alert-red/80 hover:bg-alert-red text-white text-center py-3 font-bold font-mech text-sm transition clip-card flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-power-off"></i> 系统登出
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

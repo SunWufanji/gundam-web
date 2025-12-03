@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>后台指挥中心 | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { 'gun-dark': '#0b0d14', 'gun-panel': '#151923', 'fed-blue': '#0055AA', 'zeon-red': '#CC0000', 'sensor-green': '#00ff41' },
+            fontFamily: { 'mech': ['Orbitron', 'sans-serif'], 'cn': ['"Noto Sans SC"', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-gun-dark text-gray-200 min-h-screen font-cn">
+
+    <!-- 顶部栏 -->
+    <div class="border-b border-gray-800 bg-gun-panel px-8 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-white uppercase flex items-center gap-3">
+            <i class="fa-solid fa-database text-sensor-green"></i> 后台管理中心
+        </h1>
+        <div class="flex items-center gap-4">
+            <div class="px-4 py-1 bg-sensor-green/10 border border-sensor-green text-sensor-green font-mech text-xs tracking-widest">
+                ADMIN CLEARANCE: LEVEL 5
+            </div>
+            <a href="/" class="text-gray-400 hover:text-white text-sm">返回首页</a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- 左侧：录入表单 -->
+        <div class="lg:col-span-1">
+            <div class="bg-gun-panel/50 border border-fed-blue p-6 rounded-sm relative overflow-hidden">
+                <!-- 装饰角 -->
+                <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-fed-blue"></div>
+                
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                    <i class="fa-solid fa-plus mr-2 text-fed-blue"></i> 录入新机体
+                </h2>
+                
+                <form action="/admin/add" method="post" class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-bold">机体名称 (Name)</label>
+                        <input name="name" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none transition-colors" placeholder="例如：RG 1/144 RX-78-2 Ver.2.0" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-bold">所属系列 (Series)</label>
+                        <input name="series" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none" placeholder="UC / SEED / 00" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1 font-bold">等级 (Grade)</label>
+                            <select name="grade" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none">
+                                <option value="HG">HG</option>
+                                <option value="MG">MG</option>
+                                <option value="RG">RG</option>
+                                <option value="PG">PG</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1 font-bold">价格 (Price)</label>
+                            <input name="price" type="number" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none" placeholder="日元 (不含税)">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1 font-bold">全高 (Height)</label>
+                            <input name="height" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none" placeholder="18.0m">
+                        </div>
+                        
+                        <!-- 【修改点 1】将 Weight 显示改为 机体编号，但 name="weight" 保持不变以匹配数据库 -->
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1 font-bold">机体编号 (Model No.)</label>
+                            <input name="weight" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none" placeholder="RX-78-2">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-bold">驾驶员 (Pilot)</label>
+                        <input name="pilot" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none" placeholder="Amuro Ray">
+                    </div>
+                    
+                    <!-- 【修改点 2】优化图片路径提示，指导使用本地图片 -->
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-bold">图片路径 (Image Path)</label>
+                        <div class="text-[10px] text-gray-500 mb-1">本地图片放入 static/images 后填写: /images/文件名.jpg</div>
+                        <input name="imageUrl" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none" placeholder="/images/rg_rx78_v2.jpg" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1 font-bold">简介 (Description)</label>
+                        <textarea name="description" class="w-full bg-black/50 border border-gray-700 text-white p-2 text-sm focus:border-fed-blue outline-none h-24"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-fed-blue hover:bg-blue-600 text-white font-bold py-3 uppercase tracking-widest transition-colors font-mech">
+                        INITIALIZE DATA
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 右侧：列表 -->
+        <div class="lg:col-span-2">
+           <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+              <i class="fa-solid fa-server mr-2 text-sensor-green"></i>
+              已存档机体 (<span th:text="${#lists.size(gundamList)}">0</span>)
+            </h2>
+            <div class="bg-gun-panel/30 border border-gray-800 rounded-sm overflow-hidden">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-black/40 border-b border-gray-700 text-xs text-gray-400 font-mech uppercase">
+                    <th class="p-4">ID</th>
+                    <th class="p-4">Name</th>
+                    <th class="p-4 hidden md:table-cell">Series</th>
+                    <th class="p-4 hidden md:table-cell">Grade</th>
+                    <th class="p-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800">
+                  <!-- Thymeleaf 循环 -->
+                  <tr th:each="g : ${gundamList}" class="hover:bg-white/5 transition-colors group">
+                      <td class="p-4 font-mech text-sensor-green text-sm" th:text="${g.id}">01</td>
+                      <td class="p-4 font-bold text-white text-sm flex items-center gap-3">
+                          <img th:src="${g.imageUrl}" class="w-8 h-8 object-cover rounded border border-gray-600">
+                          <span th:text="${g.name}">Name</span>
+                      </td>
+                      <td class="p-4 hidden md:table-cell text-gray-400 text-xs" th:text="${g.series}">UC</td>
+                      <td class="p-4 hidden md:table-cell text-gray-400 text-xs" th:text="${g.grade}">HG</td>
+                      <td class="p-4 text-right">
+                        <!-- 删除按钮 -->
+                        <a th:href="@{/admin/delete(id=${g.id})}" onclick="return confirm('警告：确认要删除此机体数据吗？')" class="text-gray-600 hover:text-zeon-red transition-colors">
+                          <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                      </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

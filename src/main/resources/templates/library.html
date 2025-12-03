@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>机体图鉴 | Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      // 与首页完全一致的配置
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'gun-dark': '#050505',
+              'gun-panel': '#111827',
+              'fed-blue': '#0055AA',
+              'zeon-red': '#CC0000',
+              'tech-blue': '#00A3FF',
+            },
+            fontFamily: {
+              'mech': ['Orbitron', 'sans-serif'],
+              'cn': ['"Noto Sans SC"', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #050505; color: #fff; }
+        /* 下拉菜单控制 (与首页一致) */
+        .dropdown-menu.hidden {
+            opacity: 0; visibility: hidden; transform: translateY(-10px);
+        }
+        .dropdown-menu {
+            opacity: 1; visibility: visible; transform: translateY(0);
+            transition: all 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-cn">
+
+    <!-- === 1. 顶部导航栏 (与首页完全同步) === -->
+    <nav class="sticky top-0 z-50 w-full bg-gun-dark/90 backdrop-blur-md border-b border-white/10">
+        <div class="w-full px-10 py-4 flex justify-between items-center">
+            
+            <div class="flex items-center gap-3">
+                <img src="/images/logo_blue.png" class="h-12 w-12 object-contain">
+                <div class="flex flex-col">
+                    <span class="font-mech font-black text-xl leading-none">GUNDAM<span class="text-tech-blue">.CN</span></span>
+                    <span class="font-mech text-[10px] text-gray-400">THE GUNDAM BASE</span>
+                </div>
+            </div>
+
+            <div class="hidden md:flex gap-8 font-mech text-sm font-bold">
+                <a href="/" class="text-gray-400 hover:text-white transition-colors">基地首页</a>
+                <a href="/library" class="text-tech-blue border-b-2 border-tech-blue pb-1">机体图鉴</a>
+                <a href="/forum" class="text-gray-400 hover:text-white transition-colors">驾驶员论坛</a>
+            </div>
+
+            <!-- 用户状态 (与首页完全同步的下拉菜单) -->
+            <div class="flex items-center gap-4">
+                <div th:if="${user == null}" class="flex gap-4">
+                    <a href="/login" class="text-xs font-bold font-mech hover:text-tech-blue transition py-2">LOGIN</a>
+                    <a href="/register" class="bg-fed-blue hover:bg-tech-blue text-white px-4 py-1.5 text-xs font-bold font-mech transition-all rounded-sm">REGISTER</a>
+                </div>
+                <div th:if="${user != null}" class="relative" id="user-menu-container">
+                    <button id="user-menu-trigger" class="flex items-center gap-3 focus:outline-none py-2">
+                        <div class="text-right hidden md:block">
+                            <div class="text-[9px] text-gray-500 font-mech">PILOT ACCESS</div>
+                            <div class="text-tech-blue font-bold font-mech" th:text="${user.username}">RX-78</div>
+                        </div>
+                        <div class="w-10 h-10 rounded border border-gray-600 bg-gray-900 flex items-center justify-center overflow-hidden">
+                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Gundam" class="w-full h-full">
+                        </div>
+                    </button>
+                    <div id="user-menu-dropdown" class="absolute right-0 top-full mt-2 w-48 bg-gun-panel border border-gray-700 shadow-2xl z-50 rounded-sm hidden dropdown-menu">
+                        <div class="absolute -top-1 right-4 w-2 h-2 bg-gun-panel border-t border-l border-gray-700 transform rotate-45"></div>
+                        <div class="py-2">
+                            <a href="/profile" class="block px-4 py-3 text-sm text-gray-300 hover:bg-fed-blue hover:text-white transition border-b border-gray-800 flex items-center gap-2">
+                                <i class="fa-solid fa-id-card"></i> 驾驶员档案
+                            </a>
+                            <a href="/logout" class="block px-4 py-3 text-sm text-red-400 hover:bg-red-900/30 hover:text-red-300 transition flex items-center gap-2">
+                                <i class="fa-solid fa-power-off"></i> 系统登出
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- === 2. 页面主内容 (已汉化) === -->
+    <div class="w-full px-10 py-12">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-white/10 pb-6">
+            <div>
+                <h1 class="text-4xl font-mech font-black text-white mb-2">机体档案库 / <span class="text-transparent bg-clip-text bg-gradient-to-r from-tech-blue to-cyan-400">ARCHIVE</span></h1>
+                <p class="font-mech text-gray-500 tracking-widest text-xs">访问权限: 已授权 // ACCESS LEVEL: GRANTED</p>
+            </div>
+            
+            <!-- 筛选按钮 (顺序已调整：全部 -> HG -> RG -> MG -> PG) -->
+            <div class="flex gap-2 mt-4 md:mt-0 font-mech text-xs rounded-sm p-1 bg-black/30 border border-white/10">
+                <!-- 全部 -->
+                <a href="/library" th:classappend="${currentGrade == 'ALL'} ? 'bg-tech-blue text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'" class="px-4 py-1.5 transition-colors">全部</a>
+                
+                <!-- HG -->
+                <a href="/library?grade=HG" th:classappend="${currentGrade == 'HG'} ? 'bg-tech-blue text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'" class="px-4 py-1.5 transition-colors">HG</a>
+                
+                <!-- RG (已挪到这里) -->
+                <a href="/library?grade=RG" th:classappend="${currentGrade == 'RG'} ? 'bg-tech-blue text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'" class="px-4 py-1.5 transition-colors">RG</a>
+                
+                <!-- MG (已挪到后面) -->
+                <a href="/library?grade=MG" th:classappend="${currentGrade == 'MG'} ? 'bg-tech-blue text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'" class="px-4 py-1.5 transition-colors">MG</a>
+                
+                <!-- PG -->
+                <a href="/library?grade=PG" th:classappend="${currentGrade == 'PG'} ? 'bg-tech-blue text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'" class="px-4 py-1.5 transition-colors">PG</a>
+            </div>
+        </div>
+
+        <!-- 卡片列表 (已修改) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            
+            <div th:each="g : ${gundamList}" class="group bg-gun-panel border border-white/5 hover:border-tech-blue/50 transition-all duration-300 hover:-translate-y-2">
+                
+                <!-- 图片区域 -->
+                <div class="h-64 overflow-hidden relative">
+                    <img th:src="${g.imageUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <span class="absolute top-2 right-2 bg-black/80 text-white text-[10px] font-mech px-2 py-0.5 border border-white/20" th:text="${g.grade}">HG</span>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                </div>
+                
+                <!-- 【核心修改】信息区域 -->
+                <div class="p-4 flex flex-col h-40">
+                    
+                    <!-- 标题：修正了 th-text 为 th:text，现在能正确读取数据库名字了 -->
+                    <h4 class="text-lg font-bold text-white mb-2 leading-tight" th:text="${g.name}">
+                        HG 1/144 RX-78-02 GUNDAM（GTO Ver.)
+                    </h4>
+                    
+                    <!-- 简介 -->
+                    <p class="text-xs text-gray-400 font-cn leading-relaxed flex-grow">
+                        <span th:text="${#strings.abbreviate(g.description, 40)}">
+                            简介...
+                        </span>
+                    </p>
+                    
+                    <!-- 底部链接 -->
+                    <div class="flex items-center justify-between mt-auto border-t border-white/10 pt-3">
+                         <div class="flex items-center gap-2 text-xs text-gray-500">
+                             <i class="fa-solid fa-satellite-dish text-green-500 animate-pulse"></i>
+                             <span>机体状态: 在线</span>
+                         </div>
+                         <a th:href="@{/detail(id=${g.id})}" class="text-tech-blue hover:text-white text-xs font-bold transition-colors">
+                             查看详情 <i class="fa-solid fa-angle-right"></i>
+                         </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === 3. JavaScript 逻辑 (与首页一致) === -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 用户下拉菜单逻辑
+            const userMenuContainer = document.getElementById('user-menu-container');
+            if (userMenuContainer) {
+                const trigger = document.getElementById('user-menu-trigger');
+                const dropdown = document.getElementById('user-menu-dropdown');
+
+                trigger.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    dropdown.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!userMenuContainer.contains(event.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

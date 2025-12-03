@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>系统登录 | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { 
+                'gun-dark': '#050505', 
+                'fed-blue': '#0055AA', /* 联邦深蓝 */
+                'tech-blue': '#00A3FF', /* 科技亮蓝 */
+            },
+            fontFamily: { 'mech': ['Orbitron', 'sans-serif'], 'cn': ['"Noto Sans SC"', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+</head>
+<!-- 背景颜色改为深蓝黑，防止图片加载慢时出现白屏 -->
+<body class="bg-[#02040a] min-h-screen flex items-center justify-center relative font-cn overflow-hidden">
+    
+    <!-- === 背景优化 === -->
+    <div class="fixed inset-0 z-0">
+        <!-- 依然使用 hero_freedom.jpg，但通过 CSS 滤镜让它变成蓝色调 -->
+        <!-- object-cover 保证铺满，blur-sm 稍微模糊一点突出前景 -->
+        <img src="/images/hero_freedom.jpg" class="w-full h-full object-cover blur-[2px] opacity-40 brightness-75 hue-rotate-[180deg]"> 
+        <!-- 叠加一层蓝色渐变网格 -->
+        <div class="absolute inset-0 bg-gradient-to-t from-[#02040a] via-[#0055aa]/20 to-transparent"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgMTBoNDBWMEgwdi41eiIgZmlsbD0iIzAwQTNGRiIgZmlsbC1vcGFjaXR5PSIwLjA1Ii8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2EpIi8+PC9zdmc+')] opacity-30"></div>
+    </div>
+
+    <!-- === 登录卡片 === -->
+    <div class="relative z-10 w-full max-w-md bg-[#0a101d]/90 backdrop-blur-md border border-tech-blue/30 p-10 shadow-[0_0_50px_rgba(0,163,255,0.15)] group">
+        
+        <!-- 装饰角 (蓝色) -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-tech-blue to-transparent"></div>
+        <div class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-tech-blue"></div>
+        <div class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-tech-blue"></div>
+
+        <div class="text-center mb-10">
+            <h1 class="font-mech text-4xl text-white font-bold mb-2 tracking-widest drop-shadow-[0_0_10px_rgba(0,163,255,0.8)]">SYSTEM LOGIN</h1>
+            <p class="text-tech-blue/80 text-xs font-mono tracking-[0.2em] uppercase">Earth Federation Space Force</p>
+        </div>
+
+        <p th:if="${msg}" th:text="${msg}" class="text-red-400 text-center text-sm mb-6 bg-red-900/20 py-2 border border-red-500/30 rounded"></p>
+
+        <form action="/login" method="post" class="space-y-6">
+            <!-- 用户名 -->
+            <div class="group/input">
+                <label class="block text-xs font-mech text-gray-400 mb-2 group-focus-within/input:text-tech-blue transition-colors">CALLSIGN / 代号</label>
+                <div class="relative">
+                    <i class="fa-solid fa-user absolute left-4 top-3.5 text-gray-500"></i>
+                    <input type="text" name="username" class="w-full bg-black/40 border border-white/10 text-white pl-10 pr-4 py-3 focus:border-tech-blue focus:bg-tech-blue/5 focus:outline-none transition-all font-mech tracking-wider placeholder-gray-600" placeholder="Enter ID" required>
+                </div>
+            </div>
+            
+            <!-- 密码 (优化版) -->
+            <div class="group/input">
+                <label class="block text-xs font-mech text-gray-400 mb-2 group-focus-within/input:text-tech-blue transition-colors">PASSWORD / 密钥</label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-500"></i>
+                    
+                    <!-- tracking-[0.5em] 让点点变宽；pr-10 给眼睛图标留位置 -->
+                    <input type="password" id="password" name="password" class="w-full bg-black/40 border border-white/10 text-white pl-10 pr-10 py-3 focus:border-tech-blue focus:bg-tech-blue/5 focus:outline-none transition-all font-mech tracking-[0.5em] placeholder-gray-600 placeholder-tracking-normal" placeholder="••••••" required>
+                    
+                    <!-- 眼睛图标 (点击切换) -->
+                    <i class="fa-solid fa-eye absolute right-4 top-3.5 text-gray-500 cursor-pointer hover:text-tech-blue transition-colors" onclick="togglePassword()"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-fed-blue hover:bg-tech-blue text-white font-mech font-bold py-3.5 transition-all duration-300 tracking-[0.2em] shadow-[0_4px_15px_rgba(0,85,170,0.4)] hover:shadow-[0_0_20px_rgba(0,163,255,0.6)] clip-btn relative overflow-hidden group/btn">
+                <span class="relative z-10">INITIALIZE LINK</span>
+                <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-300"></div>
+            </button>
+        </form>
+
+        <div class="mt-8 text-center border-t border-white/5 pt-4">
+            <a href="/register" class="text-gray-500 text-xs hover:text-tech-blue transition-colors font-mech tracking-wide">
+                NO ID? REGISTER NEW PILOT <i class="fa-solid fa-angle-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- JS: 密码显示/隐藏逻辑 -->
+    <script>
+        function togglePassword() {
+            const pwdInput = document.getElementById('password');
+            const icon = event.target;
+            
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                pwdInput.classList.remove('tracking-[0.5em]'); // 显示文字时，间距恢复正常
+            } else {
+                pwdInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                pwdInput.classList.add('tracking-[0.5em]'); // 变回圆点时，间距变宽
+            }
+        }
+    </script>
+</body>
+</html>

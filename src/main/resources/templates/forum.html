@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>驾驶员通讯网 | Comms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'gun-dark': '#0b0d14',
+              'gun-panel': '#151923',
+              'fed-blue': '#0055AA',
+              'tech-blue': '#00A3FF',
+            },
+            fontFamily: { 'mech': ['Orbitron', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-gun-dark text-gray-300 min-h-screen font-sans">
+
+    <!-- 顶部导航 (保持统一) -->
+    <nav class="bg-gun-panel border-b border-gray-800 px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <img src="/images/logo_blue.png" class="h-8 w-8 object-contain">
+            <span class="font-mech font-bold text-xl text-white">GUNDAM<span class="text-tech-blue">.CN</span></span>
+        </div>
+        <div class="flex gap-6 text-sm font-mech">
+            <a href="/" class="hover:text-white">基地首页</a>
+            <a href="/library" class="hover:text-white">机体图鉴</a>
+            <a href="/forum" class="text-tech-blue border-b border-tech-blue">驾驶员论坛</a>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-10">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                <i class="fa-regular fa-comments text-tech-blue"></i> 驾驶员通讯网 (COMMS)
+            </h1>
+            <p class="text-xs text-gray-500 font-mech mt-1 tracking-widest">SECURE CHANNEL // ENCRYPTED // 联邦/吉翁/天人 公共频道</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- 左侧：发送框 (修改了 form 标签) -->
+            <div class="lg:col-span-4">
+                <div class="bg-gun-panel border border-gray-700 p-6 rounded-sm shadow-lg">
+                    <h3 class="text-white font-bold mb-4 border-l-4 border-green-500 pl-3 flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> 发送讯息 (TRANSMIT)
+                    </h3>
+                    
+                    <!-- 【重要修改】form 的 action 指向后台 -->
+                    <form action="/forum/post" method="post" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-mech text-gray-500 mb-1 uppercase">代号 / CALLSIGN</label>
+                            <!-- 用户名自动填入，且只读 -->
+                            <input type="text" name="callsign" class="w-full bg-black/50 border border-gray-700 text-gray-400 p-3 text-sm" 
+                                   th:value="${user.username}" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-mech text-gray-500 mb-1 uppercase">内容 / MESSAGE</label>
+                            <!-- 【重要修改】textarea 必须有 name="message" -->
+                            <textarea name="message" class="w-full bg-black/50 border border-gray-700 text-white p-3 text-sm focus:border-tech-blue outline-none h-32" 
+                                      placeholder="分享您的战术或模型改造成果..." required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-fed-blue hover:bg-tech-blue text-white font-bold py-3 transition-colors flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> 发送传输
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 右侧：消息列表 (改为 Thymeleaf 动态循环) -->
+            <div class="lg:col-span-8 space-y-4">
+                
+                <!-- 【重要修改】Thymeleaf 循环开始 -->
+                <div th:each="post, iterStat : ${posts}" class="bg-gun-panel/50 border border-gray-800 p-4 flex gap-4 hover:border-tech-blue transition-colors">
+                    
+                    <!-- 头像框：根据用户名首字母和颜色动态生成 -->
+                    <div class="w-12 h-12 flex items-center justify-center text-white font-bold text-xl rounded-sm shrink-0"
+                         th:classappend="${iterStat.index % 3 == 0 ? 'bg-fed-blue' : (iterStat.index % 3 == 1 ? 'bg-red-600' : 'bg-purple-600')}">
+                        <span th:text="${#strings.substring(post.callsign, 0, 1)}">A</span>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="text-tech-blue font-bold font-mech" th:text="${post.callsign}">Username</h4>
+                            <!-- 时间格式化 -->
+                            <span class="text-xs text-gray-600 font-mech" th:text="${#temporals.format(post.postTime, 'yyyy.MM.dd HH:mm')}">Time</span>
+                        </div>
+                        <p class="text-sm text-gray-300" th:text="${post.message}">Message content...</p>
+                    </div>
+                </div>
+                <!-- 循环结束 -->
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

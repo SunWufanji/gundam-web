@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>机体详情 | Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'gun-dark': '#050505', 'gun-panel': '#111827',
+              'fed-blue': '#0055AA', 'tech-blue': '#00A3FF',
+            },
+            fontFamily: { 'mech': ['Orbitron', 'sans-serif'], 'cn': ['"Noto Sans SC"', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-gun-dark text-gray-300 min-h-screen font-cn">
+
+    <!-- 顶部返回条 -->
+    <div class="bg-gun-panel border-b border-gray-800 px-8 py-4 flex justify-between items-center">
+        <a href="/library" class="text-sm font-mech text-gray-400 hover:text-white flex items-center gap-2">
+            <span>&lt;</span> 返回资料库
+        </a>
+        <div class="font-mech text-tech-blue tracking-widest text-xs">安全链接已建立</div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        
+        <!-- 1. 顶部参数卡 -->
+        <div class="bg-gun-panel border border-white/10 p-8 rounded-lg mb-12 shadow-lg">
+            <div class="mb-4">
+                <div class="text-tech-blue font-mech text-sm font-bold mb-1" th:text="${g.grade}">HG</div>
+                <h1 class="text-4xl font-bold text-white" th:text="${g.name}">RX-78-02 GUNDAM (THE ORIGIN Ver.)</h1>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center border-t border-b border-white/10 py-6">
+                <div>
+                    <div class="text-[10px] text-gray-500 font-mech uppercase">Price / 售价</div>
+                    <div class="text-2xl font-mono text-white" th:text="${g.price} + ' JPY'">2300 JPY</div>
+                    <div class="text-xs text-gray-600">(不含税)</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-500 font-mech uppercase">Release / 发售日</div>
+                    <div class="text-2xl font-mono text-white" th:text="${g.releaseDate}">2020-03-14</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-500 font-mech uppercase">Height / 全高</div>
+                    <div class="text-2xl font-mono text-white" th:text="${g.height}">13cm</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-500 font-mech uppercase">Model No. / 编号</div>
+                    <div class="text-2xl font-mono text-white" th:text="${g.weight}">RX-78-02</div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-white font-bold mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-fed-blue rounded-full"></span> 机体简介 / DESCRIPTION
+                </h3>
+                <p class="text-sm leading-relaxed text-gray-400" th:text="${g.description}">
+                    机体介绍...
+                </p>
+            </div>
+        </div>
+
+        <!-- === 2. 深度评测区域 (究极融合智能版) === -->
+        
+        <!-- 章节：封绘 (这个自动从数据库读，不需要判断) -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-bold text-tech-blue mb-4 border-l-4 border-tech-blue pl-4">封绘 / Box Art</h2>
+            <img th:src="${g.imageUrl}" class="w-full rounded-md shadow-lg border border-white/10">
+        </div>
+
+        <!-- 章节：板件 -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-bold text-tech-blue mb-4 border-l-4 border-tech-blue pl-4">板件一览 / Runners</h2>
+            
+            <!-- 如果是 GTO 元祖高达 -->
+            <div th:if="${g.name.contains('GTO')}">
+                <p class="text-gray-400 mb-4 text-sm">本次套件的零件数量不多，是一款合格的HG。通过精密的零件分割，实现了无需贴纸也能高度还原设定的分色效果。</p>
+                <!-- 这里是你之前添加的所有 GTO 板件图 -->
+                <img src="/images/gto_runner_1.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_runner_2.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_runner_3.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_runner_4.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_runner_5.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_runner_6.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_runner_7.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+            </div>
+
+            <!-- 如果是 Hi-ν 高达 -->
+            <div th:if="${g.name.contains('Hi-ν')}">
+                <p class="text-gray-400 mb-4 text-sm">RG 海牛高达的板件数量惊人，分色细致，包含大量隐藏水口设计。</p>
+                <!-- 在这里添加你的海牛板件图 -->
+                 <img src="/hinu/hinu_runner_1.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4"> 
+                 <p class="text-gray-400 mb-4 text-sm">多色成型的A板~金色零件比万代常见的“金色”发色更好一些，但是也就那么一点点~</p>
+                 <img src="/hinu/hinu_runner_2.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4"> 
+                 <img src="/hinu/hinu_runner_3.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <img src="/hinu/hinu_runner_4.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <img src="/hinu/hinu_runner_5.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <img src="/hinu/hinu_runner_6.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <img src="/hinu/hinu_runner_7.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <img src="/hinu/hinu_runner_8.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <img src="/hinu/hinu_runner_9.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <p class="text-gray-400 mb-4 text-sm">说明书和水贴。</p>
+                 <img src="/hinu/hinu_runner_10.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                 <img src="/hinu/hinu_runner_11.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+            </div>
+        </div>
+
+        <!-- 章节：细节与武装 -->
+        <div class="mb-10">
+            <h2 class="text-2xl font-bold text-tech-blue mb-4 border-l-4 border-tech-blue pl-4">细节与武装 / Details & Armament</h2>
+            
+            <!-- 如果是 GTO 元祖高达 -->
+            <div th:if="${g.name.contains('GTO')}">
+                <p class="text-gray-400 mb-4 text-sm">附带了多种武器配件，包括光束步枪、超级火箭筒和盾牌。步枪的瞄准镜可以左右转动，玩法丰富。</p>
+                <!-- 这里是你之前添加的所有 GTO 细节图和文字 -->
+                <img src="/images/gto_detail_1.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <p class="text-gray-400 mb-4 text-sm bg-gun-panel p-2 border-l-2 border-white/30">肩炮可动范围很大，但是连接背包处略松，把玩的时候容易掉。</p>
+                <img src="/images/gto_detail_2.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_detail_3.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <p class="text-gray-400 mb-4 text-sm bg-gun-panel p-2 border-l-2 border-white/30">虽然是PC连接，但是关节处都比较紧实，支撑性很好，单腿不需要支架也能站的很稳妥。</p>
+                <img src="/images/gto_detail_4.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_detail_5.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_detail_6.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_detail_8.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_detail_9.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/images/gto_detail_10.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+            </div>
+
+            <!-- 如果是 Hi-ν 高达 -->
+            <div th:if="${g.name.contains('Hi-ν')}">
+                <p class="text-gray-400 mb-4 text-sm">RG 海牛的浮游炮可以实现全展开，并且连接件非常稳固。</p>
+                <p class="text-gray-400 mb-4 text-sm">骨架。</p>
+                <img src="/hinu/hinu1.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu2.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu3.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu4.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu5.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu6.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu7.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu8.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+                <img src="/hinu/hinu9.jpg" class="w-full rounded-md shadow-lg border border-white/10 mb-4">
+            </div>
+        </div>
+</body>
+</html>
